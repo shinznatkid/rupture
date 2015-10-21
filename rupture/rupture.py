@@ -1,8 +1,8 @@
 # -*- coding: utf-8 -*-
 '''
     Rupture
-    version 1
-    build 2
+    version 1.0.1
+    build 3
 '''
 
 from bs4 import BeautifulSoup
@@ -25,7 +25,7 @@ class Rupture(object):
         self.session = requests.Session()
         self.proxies = proxies
 
-    def _wrap_get_soup(self, obj):
+    def _wrap_response(self, obj):
 
         def get_soup(self):
             if not hasattr(self, '_soup'):
@@ -35,7 +35,13 @@ class Rupture(object):
                     lxml.etree.clear_error_log()
             return self._soup
 
+        def get__repr__(self):
+            if hasattr(self, 'text'):
+                return '<Response [%s]: %s>' % (self.status_code, self.text)
+            return '<Response [%s]>' % (self.status_code)
+
         obj.__class__.soup = property(get_soup)
+        obj.__class__.__repr__ = get__repr__
         return obj
 
     def http_request(self, method, url, params=None, data=None, timeout=None, proxies=None, encoding=None, **kwargs):
@@ -48,7 +54,7 @@ class Rupture(object):
             r = self.session.request(method, url, params=params, data=data, timeout=self.timeout, proxies=proxies, **kwargs)
             if encoding:
                 r.encoding = encoding
-            return self._wrap_get_soup(r)
+            return self._wrap_response(r)
         except (ssl.SSLError, socket.error) as e:
             raise requests.exceptions.RequestException(e.message)
 
