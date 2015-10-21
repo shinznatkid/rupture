@@ -26,7 +26,7 @@ class Rupture(object):
         self.proxies = proxies
         self.parser  = parser
 
-    def _wrap_response(self, obj):
+    def _wrap_response(self, obj, parser):
 
         def get_soup(self):
             if not hasattr(self, '_soup'):
@@ -41,22 +41,23 @@ class Rupture(object):
                 return '<Response [%s]: %s>' % (self.status_code, self.text)
             return '<Response [%s]>' % (self.status_code)
 
-        obj.__class__.parser = self.parser
-        obj.__class__.soup = property(get_soup)
+        obj.__class__.parser   = parser
+        obj.__class__.soup     = property(get_soup)
         obj.__class__.__repr__ = get__repr__
         return obj
 
-    def http_request(self, method, url, params=None, data=None, timeout=None, proxies=None, encoding=None, **kwargs):
+    def http_request(self, method, url, params=None, data=None, timeout=None, proxies=None, encoding=None, parser=None, **kwargs):
         timeout  = self.timeout if timeout is None else timeout
         proxies  = self.proxies if proxies is None else proxies
         encoding = self.encoding if encoding is None else encoding
+        parser   = self.parser if parser is None else parser
 
         try:
             proxies = {'http': proxies, 'https': proxies} if proxies else None
             r = self.session.request(method, url, params=params, data=data, timeout=self.timeout, proxies=proxies, **kwargs)
             if encoding:
                 r.encoding = encoding
-            return self._wrap_response(r)
+            return self._wrap_response(r, parser)
         except (ssl.SSLError, socket.error) as e:
             raise requests.exceptions.RequestException(e.message)
 
