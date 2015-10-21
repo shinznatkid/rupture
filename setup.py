@@ -12,6 +12,8 @@ setup(
     author_email='shinznatkid@gmail.com',
     url='http://readthedocs.org/',
     packages=find_packages(),
+    zip_safe=False,
+    include_package_data=True,
     install_requires=[
         'requests>=1.0.0',
         'beautifulsoup4>=4.0.0',
