@@ -21,9 +21,10 @@ class Rupture(object):
     parser   = None  # None or html.parser or lxml
     encoding = None
 
-    def __init__(self, proxies=None):
+    def __init__(self, proxies=None, parser='html.parser'):
         self.session = requests.Session()
         self.proxies = proxies
+        self.parser  = parser
 
     def _wrap_response(self, obj):
 
@@ -40,6 +41,7 @@ class Rupture(object):
                 return '<Response [%s]: %s>' % (self.status_code, self.text)
             return '<Response [%s]>' % (self.status_code)
 
+        obj.__class__.parser = self.parser
         obj.__class__.soup = property(get_soup)
         obj.__class__.__repr__ = get__repr__
         return obj
