@@ -54,7 +54,7 @@ class Rupture(object):
 
         try:
             proxies = {'http': proxies, 'https': proxies} if proxies else None
-            r = self.session.request(method, url, params=params, data=data, timeout=self.timeout, proxies=proxies, **kwargs)
+            r = self.session.request(method, url, params=params, data=data, timeout=timeout, proxies=proxies, **kwargs)
             if encoding:
                 r.encoding = encoding
             return self._wrap_response(r, parser)
