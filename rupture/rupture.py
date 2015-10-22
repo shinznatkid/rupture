@@ -17,14 +17,14 @@ from requests.packages.urllib3.poolmanager import PoolManager
 
 class Rupture(object):
 
-    timeout  = 15
     parser   = None  # None or html.parser or lxml
     encoding = None
 
-    def __init__(self, proxies=None, parser='html.parser'):
+    def __init__(self, proxies=None, parser='html.parser', timeout=None):
         self.session = requests.Session()
         self.proxies = proxies
         self.parser  = parser
+        self.timeout = timeout
 
     def _wrap_response(self, obj, parser):
 
