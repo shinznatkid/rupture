@@ -20,8 +20,10 @@ class Rupture(object):
     parser   = None  # None or html.parser or lxml
     encoding = None
 
-    def __init__(self, proxies=None, parser='html.parser', timeout=None):
+    def __init__(self, proxies=None, parser='html.parser', timeout=None, headers=None):
         self.session = requests.Session()
+        if headers:
+            self.session.headers.update(headers)
         self.proxies = proxies
         self.parser  = parser
         self.timeout = timeout
