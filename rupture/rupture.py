@@ -6,6 +6,7 @@
 '''
 
 from bs4 import BeautifulSoup
+import datetime
 import requests
 import socket
 import pickle
@@ -32,7 +33,9 @@ class Rupture(object):
 
         def get_soup(self):
             if not hasattr(self, '_soup'):
+                start_time = datetime.datetime.now()
                 self._soup = BeautifulSoup(self.text, self.parser, from_encoding=self.encoding)
+                self._soup.elapsed = datetime.datetime.now() - start_time
                 if self.parser == 'lxml':
                     import lxml
                     lxml.etree.clear_error_log()
@@ -60,8 +63,10 @@ class Rupture(object):
             if encoding:
                 r.encoding = encoding
             return self._wrap_response(r, parser)
-        except (ssl.SSLError, socket.error) as e:
-            raise requests.exceptions.RequestException(e.message)
+        except (ssl.SSLError) as e:
+            raise requests.exceptions.RequestException('SSLError %s' % e.message)
+        except (socket.error) as e:
+            raise requests.exceptions.RequestException('Socket Error %s' % e.message)
 
     def http_get(self, url, params=None, **kwargs):
         return self.http_request('GET', url, params=params, **kwargs)
