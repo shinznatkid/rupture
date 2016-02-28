@@ -59,7 +59,9 @@ class Rupture(object):
 
         try:
             proxies = {'http': proxies, 'https': proxies} if proxies else None
+            start_time = datetime.datetime.now()
             r = self.session.request(method, url, params=params, data=data, timeout=timeout, proxies=proxies, **kwargs)
+            r.elapsed_all = datetime.datetime.now() - start_time
             if encoding:
                 r.encoding = encoding
             return self._wrap_response(r, parser)
