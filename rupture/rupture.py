@@ -1,8 +1,8 @@
 # -*- coding: utf-8 -*-
 '''
     Rupture
-    version 1.0.1
-    build 3
+    version 1.3.0
+    build 4
 '''
 
 from bs4 import BeautifulSoup
@@ -98,8 +98,14 @@ class Rupture(object):
             headers = xml_headers
         return self.http_post(url, data=data, headers=headers, **kwargs)
 
-    def http_get_image(self, url, filepath, **kwargs):
-        response = self.http_get(url, stream=True, **kwargs)
+    def http_download(self, url, filepath, method='get', **kwargs):
+        if method.lower() == 'get':
+            response = self.http_get(url, stream=True, **kwargs)
+        elif method.lower() == 'post':
+            response = self.http_post(url, stream=True, **kwargs)
+        else:
+            raise NotImplementedError()
+
         if not response.ok:
             raise Exception('Response not okay')
         with open(filepath, 'wb') as handle:
@@ -108,6 +114,9 @@ class Rupture(object):
                     break
                 handle.write(block)
         return filepath
+
+    def http_get_image(self, url, filepath, **kwargs):
+        return self.http_download(url, filepath, **kwargs)
 
     def parse_float_or_none(self, s):
         if s:
