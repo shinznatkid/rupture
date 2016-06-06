@@ -1,8 +1,8 @@
 # -*- coding: utf-8 -*-
 '''
     Rupture
-    version 1.3.0
-    build 4
+    version 1.4.0
+    build 5
 '''
 
 from bs4 import BeautifulSoup
@@ -10,6 +10,7 @@ import datetime
 import requests
 import socket
 import pickle
+import time
 import ssl
 
 from requests.adapters import HTTPAdapter
@@ -51,24 +52,37 @@ class Rupture(object):
         obj.__class__.__repr__ = get__repr__
         return obj
 
-    def http_request(self, method, url, params=None, data=None, timeout=None, proxies=None, encoding=None, parser=None, **kwargs):
+    def http_request(self, method, url, params=None, data=None, timeout=None, proxies=None, encoding=None, parser=None, retries=None, retries_interval=None, **kwargs):
         timeout  = self.timeout if timeout is None else timeout
         proxies  = self.proxies if proxies is None else proxies
         encoding = self.encoding if encoding is None else encoding
         parser   = self.parser if parser is None else parser
+        if not retries:
+            retries = 0
 
-        try:
-            proxies = {'http': proxies, 'https': proxies} if proxies else None
-            start_time = datetime.datetime.now()
-            r = self.session.request(method, url, params=params, data=data, timeout=timeout, proxies=proxies, **kwargs)
-            r.elapsed_all = datetime.datetime.now() - start_time
-            if encoding:
-                r.encoding = encoding
-            return self._wrap_response(r, parser)
-        except (ssl.SSLError) as e:
-            raise requests.exceptions.RequestException('SSLError %s' % e.message)
-        except (socket.error) as e:
-            raise requests.exceptions.RequestException('Socket Error %s' % e.message)
+        while True:
+            try:
+                proxies = {'http': proxies, 'https': proxies} if proxies else None
+                start_time = datetime.datetime.now()
+                r = self.session.request(method, url, params=params, data=data, timeout=timeout, proxies=proxies, **kwargs)
+                r.elapsed_all = datetime.datetime.now() - start_time
+                if encoding:
+                    r.encoding = encoding
+                return self._wrap_response(r, parser)
+            except (ssl.SSLError) as e:
+                if retries > 0:
+                    retries = retries - 1
+                    if retries_interval:
+                        time.sleep(retries_interval)
+                    continue
+                raise requests.exceptions.RequestException('SSLError %s' % e.message)
+            except (socket.error) as e:
+                if retries > 0:
+                    retries = retries - 1
+                    if retries_interval:
+                        time.sleep(retries_interval)
+                    continue
+                raise requests.exceptions.RequestException('Socket Error %s' % e.message)
 
     def http_get(self, url, params=None, **kwargs):
         return self.http_request('GET', url, params=params, **kwargs)
