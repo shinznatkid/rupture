@@ -121,7 +121,7 @@ class Rupture(object):
             raise NotImplementedError()
 
         if not response.ok:
-            raise Exception('Response not okay')
+            raise requests.exceptions.RequestException('Response not okay')
         with open(filepath, 'wb') as handle:
             for block in response.iter_content(1024):
                 if not block:
