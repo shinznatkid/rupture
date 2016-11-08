@@ -35,7 +35,8 @@ class Rupture(object):
         def get_soup(self):
             if not hasattr(self, '_soup'):
                 start_time = datetime.datetime.now()
-                self._soup = BeautifulSoup(self.text, self.parser, from_encoding=self.encoding)
+                from_encoding = None if self.encoding == 'utf-8' else self.encoding
+                self._soup = BeautifulSoup(self.text, self.parser, from_encoding=from_encoding)
                 self._soup.elapsed = datetime.datetime.now() - start_time
                 if self.parser == 'lxml':
                     import lxml
