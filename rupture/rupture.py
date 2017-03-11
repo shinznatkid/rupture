@@ -76,14 +76,14 @@ class Rupture(object):
                     if retries_interval:
                         time.sleep(retries_interval)
                     continue
-                raise requests.exceptions.RequestException('SSLError %s' % e.message)
+                raise requests.exceptions.RequestException('SSLError %s' % e)
             except (socket.error) as e:
                 if retries > 0:
                     retries = retries - 1
                     if retries_interval:
                         time.sleep(retries_interval)
                     continue
-                raise requests.exceptions.RequestException('Socket Error %s' % e.message)
+                raise requests.exceptions.RequestException('Socket Error %s' % e)
 
     def http_get(self, url, params=None, **kwargs):
         return self.http_request('GET', url, params=params, **kwargs)
