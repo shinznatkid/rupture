@@ -12,6 +12,7 @@ import socket
 import pickle
 import time
 import ssl
+from .utils import six
 
 from requests.adapters import HTTPAdapter
 from requests.packages.urllib3.poolmanager import PoolManager
@@ -36,6 +37,9 @@ class Rupture(object):
             if not hasattr(self, '_soup'):
                 start_time = datetime.datetime.now()
                 from_encoding = None if self.encoding == 'utf-8' else self.encoding
+                if isinstance(self.text, six.text_type):
+                    from_encoding = None  # Prevent UserWarning
+
                 self._soup = BeautifulSoup(self.text, self.parser, from_encoding=from_encoding)
                 self._soup.elapsed = datetime.datetime.now() - start_time
                 if self.parser == 'lxml':
